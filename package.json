@@ -1,0 +1,16 @@
+{
+  "name": "personenvergleich",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "repository": "https://github.com/ecnordbund/lazySort.git",
+  "author": "Sebastian <2pi_r2@gmx.de>",
+  "license": "GPL-3.0-or-later",
+  "private": false,
+  "scripts": {
+    "build": "tsc index.ts -d --outDir ./dist",
+    "test": "node ./test.js"
+  },
+  "dependencies": {
+    "js-levenshtein": "^1.1.3"
+  }
+}
