@@ -2,47 +2,26 @@
 exports.__esModule = true;
 var distance = require("js-levenshtein");
 var scoreCorrect = 1 / 20;
-function getScore(personA, personB, alsoReverse) {
+exports.getScore = function (personA, personB) { return _getScore(personA, personB); };
+function _getScore(personA, personB, alsoReverse) {
     if (alsoReverse === void 0) { alsoReverse = true; }
     var score = 1;
-    // Vergleich Vornamen
-    var vornameA = personA.vorname.toLowerCase();
-    var vornameB = personB.vorname.toLowerCase();
-    if (vornameA === vornameB) {
-        score /= scoreCorrect;
-    }
-    else {
-        score /= Math.max((distance(vornameA, vornameB) -
-            Math.abs(vornameA.length - vornameB.length)) /
-            Math.min(vornameA.length, vornameB.length), scoreCorrect);
-    }
-    var nachnameA = personA.nachname.toLowerCase();
-    var nachnameB = personB.nachname.toLowerCase();
-    if (nachnameA === nachnameB) {
-        score /= scoreCorrect;
-    }
-    else {
-        score /= Math.max((distance(nachnameA, nachnameB) -
-            Math.abs(nachnameA.length - nachnameB.length)) /
-            Math.min(nachnameA.length, nachnameB.length), scoreCorrect);
-    }
-    if (personA.gebDat === personB.gebDat) {
-        score /= scoreCorrect;
-    }
-    else {
-        score /= Math.max((distance(personA.gebDat, personB.gebDat) -
-            Math.abs(personA.gebDat.length - personB.gebDat.length)) /
-            Math.min(personA.gebDat.length, personB.gebDat.length), scoreCorrect);
-    }
-    if (alsoReverse) {
-        return Math.max(score, getScore(personA, {
+    var handleValue = function (valueA, valueB) {
+        return valueA === valueB
+            ? scoreCorrect
+            : Math.max((distance(valueA, valueB) -
+                Math.abs(valueA.length - valueB.length)) /
+                Math.min(valueA.length, valueB.length), scoreCorrect);
+    };
+    score /= handleValue(personA.vorname.toLowerCase(), personB.vorname.toLowerCase());
+    score /= handleValue(personA.nachname.toLowerCase(), personB.nachname.toLowerCase());
+    score /= handleValue(personA.gebDat, personB.gebDat);
+    var reverseScore = alsoReverse
+        ? _getScore(personA, {
             vorname: personB.nachname,
             nachname: personB.nachname,
             gebDat: personB.gebDat
-        }, false));
-    }
-    else {
-        return score;
-    }
+        }, false)
+        : 0;
+    return Math.max(reverseScore, score);
 }
-exports.getScore = getScore;

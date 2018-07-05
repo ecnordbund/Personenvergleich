@@ -1,9 +1,6 @@
-export declare function getScore(personA: {
+export interface Person {
     vorname: string;
     nachname: string;
     gebDat: string;
-}, personB: {
-    vorname: string;
-    nachname: string;
-    gebDat: string;
-}, alsoReverse?: boolean): number;
+}
+export declare const getScore: (personA: Person, personB: Person) => number;

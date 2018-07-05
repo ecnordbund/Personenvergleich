@@ -2,70 +2,46 @@ import * as distance from 'js-levenshtein'
 
 const scoreCorrect = 1 / 20
 
-export function getScore(
-  personA: {
-    vorname: string
-    nachname: string
-    gebDat: string
-  },
-  personB: {
-    vorname: string
-    nachname: string
-    gebDat: string
-  },
+export interface Person {
+  vorname: string
+  nachname: string
+  gebDat: string
+}
+
+export const getScore = (
+  personA: Person,
+  personB: Person
+) => _getScore(personA, personB)
+
+function _getScore(
+  personA: Person,
+  personB: Person,
   alsoReverse: boolean = true
 ): number {
   let score = 1
 
-  // Vergleich Vornamen
-  const vornameA = personA.vorname.toLowerCase()
-  const vornameB = personB.vorname.toLowerCase()
+  const handleValue = (valueA: string, valueB: string) =>
+    valueA === valueB
+      ? scoreCorrect
+      : Math.max(
+          (distance(valueA, valueB) -
+            Math.abs(valueA.length - valueB.length)) /
+            Math.min(valueA.length, valueB.length),
+          scoreCorrect
+        )
 
-  if (vornameA === vornameB) {
-    score /= scoreCorrect
-  } else {
-    score /= Math.max(
-      (distance(vornameA, vornameB) -
-        Math.abs(vornameA.length - vornameB.length)) /
-        Math.min(vornameA.length, vornameB.length),
-      scoreCorrect
-    )
-  }
+  score /= handleValue(
+    personA.vorname.toLowerCase(),
+    personB.vorname.toLowerCase()
+  )
+  score /= handleValue(
+    personA.nachname.toLowerCase(),
+    personB.nachname.toLowerCase()
+  )
+  score /= handleValue(personA.gebDat, personB.gebDat)
 
-  const nachnameA = personA.nachname.toLowerCase()
-  const nachnameB = personB.nachname.toLowerCase()
-
-  if (nachnameA === nachnameB) {
-    score /= scoreCorrect
-  } else {
-    score /= Math.max(
-      (distance(nachnameA, nachnameB) -
-        Math.abs(nachnameA.length - nachnameB.length)) /
-        Math.min(nachnameA.length, nachnameB.length),
-      scoreCorrect
-    )
-  }
-
-  if (personA.gebDat === personB.gebDat) {
-    score /= scoreCorrect
-  } else {
-    score /= Math.max(
-      (distance(personA.gebDat, personB.gebDat) -
-        Math.abs(
-          personA.gebDat.length - personB.gebDat.length
-        )) /
-        Math.min(
-          personA.gebDat.length,
-          personB.gebDat.length
-        ),
-      scoreCorrect
-    )
-  }
-
-  if (alsoReverse) {
-    return Math.max(
-      score,
-      getScore(
+  const reverseScore = alsoReverse
+    ? _getScore(
         personA,
         {
           vorname: personB.nachname,
@@ -74,8 +50,7 @@ export function getScore(
         },
         false
       )
-    )
-  } else {
-    return score
-  }
+    : 0
+
+  return Math.max(reverseScore, score)
 }
